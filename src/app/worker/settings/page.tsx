@@ -11,10 +11,16 @@ export default async function WorkerSettingsPage() {
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   const { data: sheets } = await supabase.from("work_sheets").select("work_entries(*)").eq("worker_id", user.id);
-  const { data: projects } = await supabase.from("work_sheets").select("project_id, project:projects(name, client:clients(name))").eq("worker_id", user.id).limit(100);
+
+  // As obras do trabalhador vêm das ATRIBUIÇÕES (não das folhas)
+  const { data: assignments } = await supabase
+    .from("worker_projects")
+    .select("project:projects(name, client:clients(name))")
+    .eq("worker_id", user.id)
+    .eq("status", "approved");
+  const uniqueProjects = (assignments || []).map((a: any) => a.project).filter(Boolean);
 
   const totalMins = (sheets || []).reduce((s, sh) => s + calcMinutes(sh.work_entries || []), 0);
-  const uniqueProjects = Array.from(new Map((projects || []).filter(p => p.project).map(p => [p.project_id, p.project])).values());
 
   return (
     <WorkerSettingsClient
