@@ -127,35 +127,49 @@ test.describe("Admin pages", () => {
 });
 
 test.describe("Worker flow", () => {
-  test("worker can register via invite and is ready to work", async ({ page }) => {
-    const { email, password } = await createWorker(page);
+  test("invite assigns the selected obra and hours calculate (bugs #6/#7)", async ({ page }) => {
+    // 1. Admin cria convite com a primeira obra da lista selecionada
+    await loginAsAdmin(page);
+    await page.goto(`${BASE}/hr/invites`);
+    const code = `T${Date.now().toString().slice(-6)}`;
+    await page.getByPlaceholder("EX: EQX2025").fill(code);
+    const obraCheckbox = page.locator('div.max-h-36 input[type="checkbox"]').first();
+    const hasObra = await obraCheckbox.isVisible().catch(() => false);
+    if (!hasObra) return; // deploy sem a UI de obras — nada a testar
+    const obraName = (await obraCheckbox.locator("xpath=following-sibling::span[1]").textContent()) || "";
+    await obraCheckbox.check();
+    await page.getByRole("button", { name: /Criar convite/i }).click();
+    await expect(page.getByText(code)).toBeVisible();
 
-    // Obras do convite já estão atribuídas — sem seletor de onboarding
-    await page.waitForTimeout(2000);
-    const onboarding = page.getByRole("heading", { name: /Selecionar obras/i });
-    await expect(onboarding).not.toBeVisible({ timeout: 8000 }).catch(() => {});
-
-    // Nova folha → escolha de obra (ou mensagem se sem obras atribuídas)
-    await page.goto(`${BASE}/worker/sheet/new`);
-    await page.waitForTimeout(2000);
-    const chooserEmpty = page.getByText(/Não tem obras atribuídas/i);
-    const obraCard = page.getByRole("heading", { name: /Nova folha de serviço/i });
-    const hasObraCard = await obraCard.isVisible().catch(() => false);
-    if (hasObraCard) {
-      // Há obras: escolher a primeira e preencher a folha
-      await page.locator('a[href*="/worker/sheet/new?obra="]').first().click();
-      const timeInputs = page.locator('input[type="time"]');
-      await timeInputs.first().waitFor({ state: "visible", timeout: 15000 });
-      await timeInputs.nth(0).fill("08:00");
-      await timeInputs.nth(1).fill("12:00");
-      await page.getByRole("button", { name: /Guardar rascunho/i }).click();
-      await expect(page.getByText(/Rascunho guardado/i)).toBeVisible({ timeout: 15000 });
-      await page.goto(`${BASE}/worker/dashboard`);
-      await expect(page.getByText(/Folhas desta semana/i)).toBeVisible({ timeout: 15000 });
-    } else {
-      // Sem obras: mensagem clara
-      await expect(chooserEmpty).toBeVisible({ timeout: 15000 });
+    // 2. Trabalhador regista-se com o código
+    const email = `t${Date.now().toString().slice(-6)}@example.com`;
+    await page.goto(`${BASE}/auth/signup`);
+    await page.getByPlaceholder("Código fornecido pela EQX").fill(code);
+    await page.getByPlaceholder("João Silva").fill("teste trabalhador");
+    await page.getByPlaceholder("o.seu@email.com").fill(email);
+    await page.getByPlaceholder("Mínimo 6 caracteres").fill("teste123");
+    await page.getByRole("button", { name: /Criar conta/i }).click();
+    await page.waitForTimeout(3000);
+    if (page.url().includes("/auth/login")) {
+      await login(page, email, "teste123");
     }
+    await page.waitForURL(/\/(worker|hr)/, { timeout: 15000 });
+
+    // 3. BUG #7: as obras do trabalhador devem incluir a obra selecionada
+    await page.goto(`${BASE}/worker/settings`);
+    await expect(page.getByText(obraName!, { exact: false }).first()).toBeVisible({ timeout: 15000 });
+
+    // 4. Criar folha para essa obra e verificar as HORAS (bug #6)
+    await page.goto(`${BASE}/worker/sheet/new`);
+    await page.locator('a[href*="obra="]').first().click();
+    const timeInputs = page.locator('input[type="time"]');
+    await timeInputs.first().waitFor({ state: "visible", timeout: 15000 });
+    await timeInputs.nth(0).fill("08:00");
+    await timeInputs.nth(1).fill("12:00");
+    await page.getByRole("button", { name: /Guardar rascunho/i }).click();
+    await expect(page.getByText(/Rascunho guardado/i)).toBeVisible({ timeout: 15000 });
+    await page.goto(`${BASE}/worker/dashboard`);
+    await expect(page.getByText(/4h/).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("worker settings page loads", async ({ page }) => {

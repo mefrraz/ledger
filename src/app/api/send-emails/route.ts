@@ -18,6 +18,8 @@ export async function POST(request: Request) {
   const gmailUser = process.env.GMAIL_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD;
   const emailFrom = process.env.EMAIL_FROM || gmailUser;
+  const emailAccent = process.env.NEXT_PUBLIC_EMAIL_ACCENT || process.env.NEXT_PUBLIC_BRAND_PRIMARY || "#F1C411";
+  const emailButtonText = process.env.NEXT_PUBLIC_EMAIL_BUTTON_TEXT || "#1a1a1a";
 
   if (!gmailUser || !gmailPass) {
     return NextResponse.json({ error: "GMAIL_USER ou GMAIL_APP_PASSWORD nao configurados." }, { status: 500 });
@@ -82,7 +84,7 @@ export async function POST(request: Request) {
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F7F7;padding:20px 0">
 <tr><td align="center">
 <table width="500" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-  <tr><td style="background:#fff;padding:24px 30px 16px;text-align:center;border-bottom:3px solid #F1C411">
+  <tr><td style="background:#fff;padding:24px 30px 16px;text-align:center;border-bottom:3px solid ${emailAccent}">
     <img src="${logoUrl}" alt="logo" style="height:36px" />
   </td></tr>
   <tr><td style="padding:30px">

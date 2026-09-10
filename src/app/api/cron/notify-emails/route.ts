@@ -1,10 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
+﻿import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { startOfWeek, subDays, format } from "date-fns";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://folhas.eqx.pt";
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Folha de Serviço";
+const emailAccent = process.env.NEXT_PUBLIC_EMAIL_ACCENT || process.env.NEXT_PUBLIC_BRAND_PRIMARY || "#F1C411";
 
 export async function GET(request: Request) { return handleCron(request, "GET"); }
 export async function POST(request: Request) { return handleCron(request, "POST"); }
@@ -245,7 +246,7 @@ function emailTemplate(title: string, body: string, footer: string) {
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F7F7;padding:20px 0">
 <tr><td align="center">
 <table width="500" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-  <tr><td style="background:#fff;padding:24px 30px 16px;text-align:center;border-bottom:3px solid #F1C411">
+  <tr><td style="background:#fff;padding:24px 30px 16px;text-align:center;border-bottom:3px solid ${emailAccent}">
     <img src="${APP_URL}/logo.png" alt="logo" style="height:36px" />
   </td></tr>
   <tr><td style="padding:30px">

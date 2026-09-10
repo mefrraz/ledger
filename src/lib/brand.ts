@@ -16,6 +16,10 @@ export const brand = {
   page: process.env.NEXT_PUBLIC_BRAND_PAGE || "#F7F7F7",
   success: process.env.NEXT_PUBLIC_BRAND_SUCCESS || "#61CE70",
   olive: process.env.NEXT_PUBLIC_BRAND_OLIVE || "#98C03E",
+  /** Acento usado nos templates de email. Fallback: cor primária da marca. */
+  emailAccent: process.env.NEXT_PUBLIC_EMAIL_ACCENT || process.env.NEXT_PUBLIC_BRAND_PRIMARY || "#F1C411",
+  /** Cor do texto do botão nos emails (contraste sobre o acento). */
+  emailButtonText: process.env.NEXT_PUBLIC_EMAIL_BUTTON_TEXT || "#1a1a1a",
 };
 
 /** CSS variables a injetar no :root (para as cores do Tailwind). */

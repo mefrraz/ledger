@@ -551,12 +551,14 @@ async function callTool(name: string, args: any, role: "read" | "admin"): Promis
           const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://folhas.eqx.pt";
           const link = `${appUrl}/auth/set-password?token=${inviteToken}`;
           const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Folha de Serviço";
+          const emailAccent = process.env.NEXT_PUBLIC_EMAIL_ACCENT || process.env.NEXT_PUBLIC_BRAND_PRIMARY || "#F1C411";
+          const emailButtonText = process.env.NEXT_PUBLIC_EMAIL_BUTTON_TEXT || "#1a1a1a";
           const emailFrom = process.env.EMAIL_FROM || gmailUser;
           await transporter.sendMail({
             from: `${APP_NAME} <${emailFrom}>`,
             to: email,
             subject: `${APP_NAME} — Convite para a plataforma`,
-            html: `<html><body style="font-family:Arial,sans-serif;background:#F7F7F7;margin:0;padding:20px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="500" style="background:#fff;border-radius:14px;overflow:hidden"><tr><td style="padding:24px 30px;border-bottom:3px solid #F1C411"><h2 style="margin:0;color:#1a1a1a;font-size:18px">${APP_NAME}</h2></td></tr><tr><td style="padding:30px"><h2 style="margin:0 0 10px;color:#1a1a1a;font-size:18px">Bem-vindo, ${nome}</h2><p style="color:#54595F;font-size:14px;line-height:1.6">Foi criada uma conta para si. Clique no botão para definir a sua palavra-passe:</p><div style="text-align:center;margin:20px 0"><a href="${link}" style="background:#F1C411;color:#1a1a1a;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold">Definir palavra-passe</a></div><p style="color:#888;font-size:12px">Ou copie: <a href="${link}" style="color:#F1C411">${link}</a></p></td></tr></table></td></tr></table></body></html>`,
+            html: `<html><body style="font-family:Arial,sans-serif;background:#F7F7F7;margin:0;padding:20px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="500" style="background:#fff;border-radius:14px;overflow:hidden"><tr><td style="padding:24px 30px;border-bottom:3px solid ${emailAccent}"><h2 style="margin:0;color:#1a1a1a;font-size:18px">${APP_NAME}</h2></td></tr><tr><td style="padding:30px"><h2 style="margin:0 0 10px;color:#1a1a1a;font-size:18px">Bem-vindo, ${nome}</h2><p style="color:#54595F;font-size:14px;line-height:1.6">Foi criada uma conta para si. Clique no botão para definir a sua palavra-passe:</p><div style="text-align:center;margin:20px 0"><a href="${link}" style="background:${emailAccent};color:${emailButtonText};padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold">Definir palavra-passe</a></div><p style="color:#888;font-size:12px">Ou copie: <a href="${link}" style="color:${emailAccent}">${link}</a></p></td></tr></table></td></tr></table></body></html>`,
           });
           emailEnviado = true;
         } catch (err: any) {

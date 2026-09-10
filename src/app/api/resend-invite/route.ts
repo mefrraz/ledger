@@ -1,10 +1,12 @@
-import { createClient } from "@supabase/supabase-js";
+﻿import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Folha de Serviço";
+const emailAccent = process.env.NEXT_PUBLIC_EMAIL_ACCENT || process.env.NEXT_PUBLIC_BRAND_PRIMARY || "#F1C411";
+const emailButtonText = process.env.NEXT_PUBLIC_EMAIL_BUTTON_TEXT || "#1a1a1a";
 
 export async function POST(request: Request) {
   try {
@@ -79,7 +81,7 @@ function inviteEmailTemplate(fullName: string, link: string) {
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F7F7;padding:20px 0">
 <tr><td align="center">
 <table width="500" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-  <tr><td style="background:#fff;padding:24px 30px 16px;text-align:center;border-bottom:3px solid #F1C411">
+  <tr><td style="background:#fff;padding:24px 30px 16px;text-align:center;border-bottom:3px solid ${emailAccent}">
     <h2 style="margin:0;color:#1a1a1a;font-size:18px">${APP_NAME}</h2>
   </td></tr>
   <tr><td style="padding:30px">
@@ -89,10 +91,10 @@ function inviteEmailTemplate(fullName: string, link: string) {
       Clique no botão abaixo para definir a sua palavra-passe:
     </p>
     <div style="text-align:center;margin:20px 0">
-      <a href="${link}" style="display:inline-block;background:#F1C411;color:#1a1a1a;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px">Definir palavra-passe</a>
+      <a href="${link}" style="display:inline-block;background:${emailAccent};color:${emailButtonText};padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px">Definir palavra-passe</a>
     </div>
     <p style="margin:0;color:#888;font-size:12px">
-      Ou copie este link:<br><a href="${link}" style="color:#F1C411">${link}</a>
+      Ou copie este link:<br><a href="${link}" style="color:${emailAccent}">${link}</a>
     </p>
   </td></tr>
   <tr><td style="background:#F7F7F7;padding:15px 30px;border-top:1px solid #eee">
