@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -17,10 +17,10 @@ const PREDEFINED = [
     id: "welcome",
     title: "Boas-vindas",
     trigger: "Quando um trabalhador cria conta",
-    subject: "Bem-vindo a EQX",
+    subject: "Bem-vindo à plataforma",
     body: `Olá {name},
 
-A sua conta na plataforma EQX Folha de Serviço foi criada com sucesso.
+A sua conta na plataforma foi criada com sucesso.
 
 Aceda à plataforma e seleccione as suas obras: ${APP_URL}`,
   },
@@ -28,7 +28,7 @@ Aceda à plataforma e seleccione as suas obras: ${APP_URL}`,
     id: "admin_notify",
     title: "Notificação de submissão",
     trigger: "Quando um trabalhador submete uma folha",
-    subject: "EQX — Folha submetida",
+    subject: "Folha submetida",
     body: `{name} submeteu a folha da semana {week_start} a {week_end}.
 
 Cliente: Ver na plataforma
@@ -40,7 +40,7 @@ Ver notificações: ${APP_URL}/hr/notifications`,
     id: "weekly_reminder",
     title: "Lembrete semanal",
     trigger: "Domingo as 9h — trabalhadores sem folha na semana anterior",
-    subject: "EQX — Folha de serviço pendente",
+    subject: "Folha de serviço pendente",
     body: `Olá {name},
 
 A folha de serviço da semana passada ainda não foi submetida.
@@ -51,7 +51,7 @@ Por favor, submeta a sua folha o mais breve possível.`,
     id: "weekly_stats",
     title: "Resumo semanal",
     trigger: "Domingo as 9h — para todos os trabalhadores",
-    subject: "EQX — Resumo da semana",
+    subject: "Resumo da semana",
     body: `Olá {name},
 
 Resumo da semana {week_start} a {week_end}:
@@ -63,7 +63,7 @@ Continue o bom trabalho!`,
   },
 ];
 
-export default function EmailClient({ workers }: { workers: Worker[] }) {
+export default function EmailClient({ workers, obrasByWorker }: { workers: Worker[]; obrasByWorker?: Record<string, string[]> }) {
   const [showComposer, setShowComposer] = useState(false);
   const [presetSubject, setPresetSubject] = useState("");
   const [presetBody, setPresetBody] = useState("");

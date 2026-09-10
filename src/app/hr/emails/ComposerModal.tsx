@@ -35,7 +35,7 @@ function replaceVars(text: string, w: Worker) {
     .replace(/{obra_atual}/g, "—");
 }
 
-export default function ComposerModal({ workers, onClose, presetSubject, presetBody, mode = "send", onSave }: { workers: Worker[]; onClose: () => void; presetSubject?: string; presetBody?: string; mode?: "send" | "edit"; onSave?: (subject: string, body: string) => void }) {
+export default function ComposerModal({ workers, obrasByWorker, onClose, presetSubject, presetBody, mode = "send", onSave }: { obrasByWorker?: Record<string, string[]>; workers: Worker[]; onClose: () => void; presetSubject?: string; presetBody?: string; mode?: "send" | "edit"; onSave?: (subject: string, body: string) => void }) {
   const [step, setStep] = useState<"edit" | "recipients">("edit");
   const [subject, setSubject] = useState(presetSubject || "");
   const [body, setBody] = useState(presetBody || "");
@@ -46,6 +46,7 @@ export default function ComposerModal({ workers, onClose, presetSubject, presetB
   const [savedSubject, setSavedSubject] = useState("");
   const [savedBody, setSavedBody] = useState("");
   const [quickLoading, setQuickLoading] = useState(false);
+  const [obraFilter, setObraFilter] = useState("");
 
   // Quick-select: auto-select workers based on submission status
   const quickSelect = async (mode: "all" | "submitted" | "not_submitted") => {
@@ -145,7 +146,7 @@ export default function ComposerModal({ workers, onClose, presetSubject, presetB
               <p className="text-xs text-brand-soft mb-3 tracking-wide uppercase font-semibold">Pre-visualizacao</p>
               <div className="bg-white rounded-xl border border-brand-light/30 overflow-hidden">
                 <div style={{ background: "#fff", padding: "12px 16px", textAlign: "center", borderBottom: "3px solid var(--brand-gold)" }}>
-                  <span style={{ fontWeight: "bold", color: "#1a1a1a", fontSize: "14px" }}>EQX</span>
+                  <span style={{ fontWeight: "bold", color: "var(--brand-dark)", fontSize: "14px" }}>logo</span>
                 </div>
                 <div className="p-4 space-y-2">
                   <p className="text-xs text-brand-muted">Para: {previewWorker?.email || "—"}</p>
@@ -153,7 +154,7 @@ export default function ComposerModal({ workers, onClose, presetSubject, presetB
                   <div className="border-t border-brand-light/20 pt-3" />
                   <div className="text-sm text-brand-dark whitespace-pre-wrap">{body ? replaceVars(body, previewWorker) : "—"}</div>
                   <div className="border-t border-brand-light/20 pt-3" />
-                  <p className="text-xs text-brand-muted italic">Enviado automaticamente pela plataforma EQX Folha de Servico.</p>
+                  <p className="text-xs text-brand-muted italic">Enviado automaticamente pela plataforma.</p>
                 </div>
               </div>
             </div>
@@ -171,6 +172,16 @@ export default function ComposerModal({ workers, onClose, presetSubject, presetB
               placeholder="Pesquisar trabalhador..."
             />
             <p className="text-xs text-brand-soft mt-3 mb-2 shrink-0">{selected.size} selecionados</p>
+            {/* Filtro por obra */}
+            <div className={"shrink-0 mb-3"}>
+              <label className={"label-field"}>Filtrar por obra</label>
+              <select value={obraFilter} onChange={(e) => setObraFilter(e.target.value)} className={"input-field text-xs !py-2"}>
+                <option value={""}>Todas as obras</option>
+                {Array.from(new Set(Object.values(obrasByWorker || {}).flat())).sort().map((nome: string) => (
+                  <option key={nome} value={nome}>{nome}</option>
+                ))}
+              </select>
+            </div>
             {/* Quick-select */}
             <div className="flex gap-2 shrink-0 mb-3">
               <button onClick={() => quickSelect("all")} disabled={quickLoading} className="btn-ghost text-xs !py-1 !px-3 border border-brand-light/30">Todos</button>
@@ -193,7 +204,7 @@ export default function ComposerModal({ workers, onClose, presetSubject, presetB
         {/* Footer */}
         <div className="flex items-center justify-between p-4 border-t border-brand-light/20 shrink-0">
           <p className="text-xs text-brand-muted italic hidden sm:block">
-            O email incluira o logo EQX e o rodape automático.
+            O email inclui o logo e o rodapé automáticos.
           </p>
           {step === "edit" && mode === "edit" ? (
             <button onClick={() => { onSave?.(subject, body); onClose(); }} className="btn-primary text-sm !py-2 !px-6 ml-auto">Guardar</button>
