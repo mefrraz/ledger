@@ -1,8 +1,8 @@
-import { test, expect, Page } from "@playwright/test";
+﻿import { test, expect, Page } from "@playwright/test";
 
 const BASE = process.env.E2E_BASE_URL || "https://eqx-folha-servico.vercel.app";
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "colaboradoreshoraseqx@gmail.com";
-const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "eqx2030";
+const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "Equation2026";
 
 async function login(page: Page, email: string, password: string) {
   await page.goto(`${BASE}/auth/login`);

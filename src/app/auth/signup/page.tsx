@@ -28,11 +28,11 @@ export default function SignupPage() {
     if (checkData.role) profileUpdate.role = checkData.role;
     if (typeof checkData.requiresApproval === "boolean") profileUpdate.requires_approval = checkData.requiresApproval;
     await supabase.from("profiles").update(profileUpdate).eq("id", data.user.id);
-    // Atribuir as obras do convite (aprovadas — o admin escolheu-as)
-    const projectIds: string[] = checkData.projectIds || [];
-    if (projectIds.length > 0) {
-      const rows = projectIds.map((pid: string) => ({ worker_id: data.user!.id, project_id: pid, status: "approved" }));
-      await supabase.from("worker_projects").upsert(rows, { onConflict: "worker_id,project_id" });
+    // Atribuir as obras do convite via SERVICE ROLE (evita bloqueios de RLS)
+    if (checkData.inviteId) {
+      const r = await fetch("/api/assign-invite-obras", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ inviteId: checkData.inviteId, userId: data.user.id }) });
+      const assignData = await r.json();
+      if (assignData.error) toast.error("Erro ao atribuir obras: " + assignData.error);
     }
     await supabase.from("profiles").update({ onboarded: true }).eq("id", data.user.id);
     if(data.session){toast.success("Conta criada!");router.push("/");router.refresh();}
